@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbería Jafeth | Registro</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="imagenes/logo-oficial.png" alt="Barbería Jafeth Logo" class="logo-img"/>
+        <h1>Barbería Jafeth</h1>
+        <p class="slogan">Donde la caballerosidad se encuentra con el estilo.</p>
+    </header>
+
+    <main>
+        <h2>Crea tu cuenta</h2>
+        <form action="procesar_registro.php" method="POST">
+            <label>Nombre Completo:</label>
+            <input type="text" name="usuario" placeholder="Nombre y apellido" required>
+
+            <label>Correo Electrónico:</label>
+            <input type="email" name="email" placeholder="correo@ejemplo.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Por favor, introduce un correo válido (ejemplo@correo.com)" required>
+
+            <label>Teléfono:</label>
+            <input type="tel" name="telefono" placeholder="8888-8888" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+
+            <label>Contraseña:</label>
+            <input type="password" name="password" minlength="6" placeholder="Mínimo 6 caracteres" required>
+
+            <button type="submit" class="btn-principal">Registrarme</button>
+        </form>
+        <p style="text-align: center; margin-top: 15px;">
+            <small>¿Ya tienes cuenta? 
+                <a href="login.html" class="link-accent">Inicia sesión aquí</a>
+            </small>
+        </p>
+    </main>
+</body>
+</html>

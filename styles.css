@@ -1,0 +1,1018 @@
+/* --- 0. GLOBAL RESET --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* --- 1. VARIABLES: PALETA BARBERÍA CLÁSICA --- */
+:root {
+  --rojo-barber: #d32f2f; /* Rojo clásico poste de barbero */
+  --rojo-dark: #b71c1c; /* Rojo oscuro para hovers */
+    --negro-fondo: #121212; /* Fondo principal oscuro */
+    --negro-suave: #1e1e1eba; /* Contenedores con transparencia */
+    --blanco-hueso: #f5f5f5; /* Texto principal */
+    --gris-detalle: #b0b0b0; /* Textos secundarios */
+    --azul-barber: #1976d2; /* Azul para acento (poste barbero) */
+    --sombra: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Sombra suave */
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- 2. ESTILOS GENERALES --- */
+body {
+    font-family: "Roboto", Arial, sans-serif;
+    background-color: var(--negro-fondo);
+    background-image:
+    linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+    url("imagenes/fondoclientes.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--blanco-hueso);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos base para todos los enlaces */
+a {
+    transition: color 0.3s ease, transform 0.2s ease, text-shadow 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Hover para enlaces estándar (que no son botones ni acentos) */
+a:not(button):not(.btn-principal):not(.btn-hero):not(.btn-back-home):not(.link-accent):not(.btn-logout):not(.whatsapp-float):hover {
+    color: var(--rojo-barber);
+    transform: scale(1.05);
+    text-shadow: 0 0 5px rgba(211, 47, 47, 0.5);
+}
+
+.link-accent {
+    color: var(--rojo-barber);
+    font-weight: bold;
+    text-decoration: underline;
+    transition: all 0.3s ease;
+}
+
+.link-accent:hover {
+    color: var(--rojo-dark);
+    transform: scale(1.03);
+    text-shadow: 0 0 8px rgba(211, 47, 47, 0.4);
+}
+
+header {
+    background-color: rgba(211, 47, 47, 0.75); /* Rojo con más transparencia */
+    backdrop-filter: blur(5px);
+    color: var(--blanco-hueso);
+    width: 100%;
+    padding: 0.5rem 0; /* Menos padding */
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px; /* Menos espacio entre elementos */
+    z-index: 10;
+    position: relative; /* Para posicionar elementos absolutos dentro */
+}
+
+.logo-img {
+    height: 200px; 
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    transition: transform 0.3s ease;
+    margin-bottom: -20px; /* Truco para que no ocupe tanto espacio visual vacio */
+}
+
+.logo-img:hover {
+    transform: rotate(-5deg) scale(1.05);
+}
+
+.slogan {
+    font-size: 1.1rem;
+    color: #ffffff;
+    font-style: italic;
+    font-weight: 300;
+    margin-top: 5px;
+    letter-spacing: 1.5px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* --- 3. NAVEGACIÓN --- */
+.admin-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.9); /* Revertido a negro */
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 0.8rem 2rem;
+    width: 100%;
+    border-bottom: 1px solid rgba(255,255,255,0.1); /* Borde sutil en lugar de rojo solido */
+}
+
+/* Regreso al inicio (Login/Registro) */
+.home-nav {
+    position: fixed; /* Fixed so it's always accessible */
+    top: 20px;
+    left: 20px;
+    z-index: 1000; /* Above everything else */
+}
+
+.btn-back-home {
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for contrast */
+    color: white;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 50px; /* Pillow shape for a professional button look */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.btn-back-home:hover {
+    background: var(--rojo-barber);
+    color: white; /* Keep text white on hover */
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+}
+
+/* --- 4. CONTENEDORES CON GLASSMORPHISM --- */
+main {
+    width: 90%;
+    max-width: 500px;
+    background: var(--negro-suave);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 2.5rem;
+    margin-top: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--sombra);
+    margin-left: auto;
+    margin-right: auto;
+    border: var(--glass-border);
+}
+
+.main-wide {
+    max-width: 900px;
+}
+
+.admin-main {
+    max-width: 1100px;
+    width: 95%;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    backdrop-filter: none;
+}
+
+/* --- 5. FORMULARIOS --- */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+label {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: var(--rojo-barber);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input,
+select {
+    padding: 1rem;
+    border: 1px solid #444;
+    background: rgba(255, 255, 255, 0.05); /* Fondo sutil */
+    color: var(--blanco-hueso);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--rojo-barber);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.3);
+}
+
+/* Fix para que las opciones se vean bien en el dropdown */
+option, optgroup {
+    background-color: #1e1e1e; /* Fondo oscuro sólido */
+    color: var(--blanco-hueso);
+}
+
+/* --- 6. BOTONES --- */
+button {
+    padding: 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.btn-principal {
+    background: linear-gradient(45deg, var(--rojo-barber), var(--rojo-dark));
+    color: var(--blanco-hueso);
+    width: 100%;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.btn-principal:hover {
+    background: linear-gradient(45deg, var(--rojo-dark), var(--rojo-barber));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(211, 47, 47, 0.5);
+}
+
+.btn-logout {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--rojo-barber);
+    color: white;
+    padding: 8px 15px;
+}
+
+.btn-logout:hover {
+    background: var(--rojo-barber);
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.5);
+}
+
+/* --- 7. ESTADÍSTIQUES --- */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--negro-suave);
+    backdrop-filter: blur(5px);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: var(--sombra);
+    border-top: 4px solid var(--rojo-barber);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-card h3 {
+    color: var(--gris-detalle);
+    opacity: 0.8;
+}
+.stat-card p {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* --- 8. TABLAS --- */
+.table-container {
+    background: var(--negro-suave);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: var(--sombra);
+    overflow-x: auto; /* IMPORTANTE para mobile */
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1.5rem;
+    border: var(--glass-border);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Animación de filas de tabla */
+/* Animación de filas de tabla (Solo cuando se carga la primera vez o se filtra) */
+tbody tr.row-animation {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+tbody tr:nth-child(1) { animation-delay: 0.05s; }
+tbody tr:nth-child(2) { animation-delay: 0.1s; }
+tbody tr:nth-child(3) { animation-delay: 0.15s; }
+tbody tr:nth-child(4) { animation-delay: 0.2s; }
+tbody tr:nth-child(5) { animation-delay: 0.25s; }
+tbody tr:nth-child(6) { animation-delay: 0.3s; }
+tbody tr:nth-child(7) { animation-delay: 0.35s; }
+tbody tr:nth-child(8) { animation-delay: 0.4s; }
+tbody tr:nth-child(9) { animation-delay: 0.45s; }
+tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Ajustado (Clientes Registrados) */
+.header-ajustado {
+    width: fit-content;
+    margin: 0 auto 1.5rem auto; /* Centrado */
+    background: var(--negro-suave);
+    padding: 1rem 2rem;
+    border-radius: 50px; /* Redondeado */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+}
+
+.header-ajustado h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--blanco-hueso);
+    text-align: center;
+}
+
+th {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--rojo-barber);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    padding: 18px 15px;
+}
+
+td {
+    padding: 15px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--blanco-hueso);
+}
+
+tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* --- 9. MODALES MEJORADOS --- */
+.modal,
+.modal-overlay {
+    display: none; /* OCULTO POR DEFECTO */
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo más suave */
+    backdrop-filter: blur(8px); /* Más desenfoque */
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0; /* Para la animación JS si se implementa, o CSS puro */
+    animation: fadeInOverlay 0.3s forwards; /* Animación de entrada */
+}
+
+/* Animación de los modales (El Cuadro) */
+.modal-content {
+    background: linear-gradient(135deg, #1e1e1e 0%, #252525 100%);
+    padding: 2.5rem; /* Más espacio interno */
+    border-radius: 16px; /* Bordes más redondeados */
+    width: 90%;
+    max-width: 500px; /* Un poco más ancho */
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* Sombra elegante */
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Borde sutil */
+    border-top: 4px solid var(--rojo-barber);
+    color: white;
+    transform: translateY(20px) scale(0.95);
+    animation: modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; /* Efecto rebote suave */
+}
+
+/* Animaciones Keyframes */
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalPopIn {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Botón de cerrar (X) más lindo */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.8rem; /* A bit larger */
+    font-weight: bold;
+    height: 40px; /* Slightly larger area */
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    color: #fff; /* Start with white for better contrast */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    background: var(--rojo-barber) !important;
+    color: white !important;
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 15px rgba(211, 47, 47, 0.6);
+}
+
+.close-btn:active {
+    transform: rotate(90deg) scale(0.9);
+    background: var(--rojo-dark) !important;
+}
+
+/* --- ESTILOS ESPECÍFICOS DE FORMULARIO EN MODAL --- */
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--blanco-hueso);
+    border-bottom: 2px solid rgba(255,255,255,0.05);
+    padding-bottom: 10px;
+}
+
+/* Alinea los títulos y las celdas AL CENTRO */
+table th, table td {
+    text-align: center; /* CENTRADO */
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+/* Si quieres que la columna de acciones se mantenga centrada */
+table th:last-child, 
+table td:last-child {
+    text-align: center;
+}
+
+/* Estilos para las etiquetas de estado */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+/* El color rojo que me pediste para cancelado */
+.status-cancelado, .status-inactivo {
+    background-color: #4d1b1b;
+    color: #ee5253;
+    border: 1px solid #ee5253;
+}
+
+.status-pendiente {
+    background-color: #43351b;
+    color: #f39c12;
+    border: 1px solid #f39c12;
+}
+
+.status-confirmado, .status-activo, .status-realizada {
+    background-color: #1b4332;
+    color: #27ae60;
+    border: 1px solid #27ae60;
+}
+
+/* Contenedor de filtros para que todo esté en línea */
+.admin-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #252525;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #333;
+    width: 100%;
+}
+
+.nav-buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 0 10px;
+}
+
+/* Botón de filtrar (Citas, Usuarios, Filtrar) */
+.btn-filter {
+    background-color: var(--rojo-barber); 
+    color: white; 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
+    transition: all 0.3s ease;
+}
+
+.btn-filter:hover {
+    transform: translateY(-2px) scale(1.05); /* Crece un poquito */
+    background-color: var(--rojo-dark);
+    box-shadow: 0 0 15px rgba(211, 47, 47, 0.6); /* Glow Rojo */
+    border-color: white;
+}
+
+/* Botón de reset */
+.btn-reset {
+    background-color: #444;
+    color: white;
+    padding: 8px 12px;
+    margin: 0;
+    min-width: 40px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+    transform: translateY(-2px) scale(1.1); /* Crece un poquito más */
+    background-color: #666;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Glow Blanco/Gris */
+    border-color: white;
+}
+
+/* Hovers para Logout */
+.btn-logout {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--rojo-barber);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: var(--rojo-barber);
+    transform: translateY(-2px) scale(1.05); /* Crece */
+    box-shadow: 0 0 15px rgba(211, 47, 47, 0.5); /* Glow Rojo */
+}    
+.toast {
+    min-width: 300px;
+    background: rgba(30, 30, 30, 0.95);
+    color: #ffffff;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-left: 5px solid var(--rojo-barber);
+    font-size: 1rem;
+    font-weight: 500;
+    backdrop-filter: blur(5px);
+    animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 3.5s forwards;
+    z-index: 9999;
+}
+
+.toast.error {
+    border-left-color: #d32f2f;
+}
+
+.toast i {
+    font-size: 1.4rem;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* --- MODAL BUTTONS & EXTRAS --- */
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 2rem;
+    justify-content: flex-end;
+}
+
+.modal-buttons button {
+    margin-top: 0; /* Reset default margin */
+    flex: 1;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .admin-nav {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .admin-filters {
+        justify-content: center;
+    }
+
+    .header-ajustado-wide {
+        padding: 1.2rem;
+        width: 95%;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-nav {
+        flex-direction: column;
+        padding: 1rem;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .admin-nav h2 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .admin-nav div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    header {
+        padding: 1.5rem 1rem;
+        text-align: center;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+        margin: 10px 0;
+    }
+
+    .slogan {
+        font-size: 0.95rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .header-flex {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .header-ajustado-wide {
+        width: 95% !important;
+        padding: 1.5rem 1rem !important;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn-principal.btn-auto {
+        width: 100% !important;
+    }
+
+    .header-ajustado-wide h2 {
+        font-size: 1.3rem;
+        margin: 0;
+    }
+
+    main, .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .logo-img {
+        height: 120px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Admin table scroll */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 600px;
+    }
+
+    .admin-filters {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100% !important;
+        padding: 15px !important;
+        margin: 0 auto 20px auto !important;
+    }
+
+    .admin-filters > * {
+        width: 100% !important;
+        margin: 5px 0;
+    }
+
+    .nav-buttons-container {
+        gap: 8px;
+        padding: 0 5px;
+    }
+
+    .nav-buttons-container .btn-filter {
+        flex: 1 1 45%; /* Dos por fila */
+        min-width: 140px;
+        padding: 10px 5px;
+        font-size: 0.85rem;
+    }
+
+    /* Efecto Mini-Zoom sutil para móvil */
+    .btn-filter:hover, .btn-reset:hover {
+        transform: scale(1.03) translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+    }
+
+    .acciones-celda {
+        padding: 5px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* --- ESTILOS DE PERFIL Y CAMPOS (RECUPERADOS) --- */
+.campo {
+    display: flex;
+    flex-direction: column; 
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.campo label {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--blanco-hueso);
+}
+
+.campo input {
+    padding: 10px 12px;
+    border: 1px solid #444;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 100%; 
+    box-sizing: border-box; 
+    transition: all 0.3s;
+}
+
+.campo input:focus {
+    border-color: var(--rojo-barber); 
+    box-shadow: 0 0 8px rgba(211, 47, 47, 0.3);
+    outline: none;
+}
+
+.campo label i {
+    color: var(--rojo-barber);
+    margin-right: 8px;
+    width: 20px;
+}
+
+.btn-guardar-cambios {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--rojo-barber);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.btn-guardar-cambios:hover {
+    background-color: var(--rojo-dark);
+}
+
+/* --- ACCIONES DE TABLA (BOTONES) --- */
+.acciones-celda {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-edit, .btn-delete {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-size: 1rem;
+}
+
+/* Botón Editar (Azul) */
+.btn-edit {
+    background: rgba(25, 118, 210, 0.15); /* Azul muy suave */
+    color: #4fc3f7; /* Azul claro */
+    border: 1px solid rgba(25, 118, 210, 0.3);
+}
+
+.btn-edit:hover {
+    transform: scale(1.15) translateY(-2px);
+    background: #1976d2; /* Azul intenso */
+    color: white;
+    box-shadow: 0 0 15px rgba(25, 118, 210, 0.6); /* RESPLANDOR AZUL */
+    border-color: #1976d2;
+}
+
+/* Botón Eliminar (Rojo) */
+.btn-delete {
+    background: rgba(211, 47, 47, 0.15);
+    color: #ef5350;
+    border: 1px solid rgba(211, 47, 47, 0.3);
+}
+
+.btn-delete:hover {
+    transform: scale(1.15) translateY(-2px);
+    background: #d32f2f; /* Rojo intenso */
+    color: white;
+    box-shadow: 0 0 15px rgba(211, 47, 47, 0.6); /* RESPLANDOR ROJO */
+    border-color: #d32f2f;
+}
+
+/* Botón Principal Guardar/Agendar (Hover mejorado) */
+.btn-principal:hover {
+    background: linear-gradient(45deg, var(--rojo-dark), var(--rojo-barber));
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+}
+
+/* Efecto de transición para todos los elementos interactivos */
+button, .btn-accion, .btn-hero, .btn-back-home, a {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-editar-perfil {
+    background-color: transparent;
+    border: 1px solid var(--blanco-hueso);
+    color: var(--blanco-hueso);
+    padding: 8px 15px; /* Un poco más grande */
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animación rebote */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-editar-perfil:hover {
+    background-color: var(--rojo-barber);
+    border: 1px solid white; /* Borde solicitado */
+    color: white;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 0 15px rgba(211, 47, 47, 0.5); 
+}
+
+.status-activo { background-color: var(--verde-ok) !important; color: white !important; }
+.status-inactivo { background-color: var(--rojo-bad) !important; color: white !important; }
+#campo-categoria select { width: 100%; padding: 10px; background: #444; color: white; border: 1px solid #555; border-radius: 5px; margin-top: 5px; }
+
+/* Modal Centering and Refinements */
+.centered-modal .modal-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.centered-modal form {
+    width: 100%;
+    margin-top: 15px;
+}
+
+.centered-modal label {
+    display: block;
+    margin-bottom: 8px;
+    text-align: left;
+    color: var(--rojo-barber);
+    font-weight: bold;
+}
+
+.centered-modal input, 
+.centered-modal select {
+    width: 100%;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+#gestion-categoria {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    border: 1px solid #444;
+    border-radius: 8px;
+}
+
+.btn-auto {
+    width: auto !important;
+    padding: 10px 20px !important;
+}
+
+.btn-secondary {
+    background: #666 !important;
+    color: white !important;
+}
+
+.btn-secondary:hover {
+    background: #888 !important;
+    transform: translateY(-2px);
+}
+
+/* Utility Classes for Clean UI */
+.header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.mt-15 {
+    margin-top: 15px;
+}
+
+.bg-azul {
+    background-color: var(--azul-barber) !important;
+}
+
+.readonly-field {
+    background: #303030 !important;
+    cursor: default;
+    opacity: 0.8;
+}
+
+.header-ajustado-wide {
+    width: 95%;
+    max-width: 1000px;
+    margin: 0 auto 1.5rem auto;
+    background: var(--negro-suave);
+    padding: 1.5rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+}
+
+.toast-container-fixed {
+    position: fixed; 
+    top: 20px; 
+    right: 20px; 
+    z-index: 9999;
+}
+
+.seccion-oculta {
+    display: none;
+}

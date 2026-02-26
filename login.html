@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema citas | Admin Login</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Navegación de retorno -->
+    <nav class="home-nav">
+      <a href="index.php" class="btn-back-home">
+        <i class="fas fa-arrow-left"></i> Volver al Inicio
+      </a>
+    </nav>
+
+    <header>
+      <img
+        src="imagenes/logo-oficial.png"
+        alt="Barbería Jafeth Logo"
+        class="logo-img"
+      />
+      <h1>Barbería Jafeth</h1>
+      <p class="slogan">Donde la caballerosidad se encuentra con el estilo.</p>
+    </header>
+
+    <main>
+      <h2>Iniciar Sesión</h2>
+      <form action="login.php" method="POST">
+        <label>Correo Electrónico:</label>
+        <input
+          type="email"
+          name="usuario"
+          placeholder="ejemplo@correo.com"
+          required
+        />
+
+        <label for="password">Contraseña:</label>
+        <input type="password" name="password" id="password" required />
+
+        <button type="submit" class="btn-principal">¡Entrar!</button>
+      </form>
+
+      <p>
+        <small
+          >¿No tienes una cuenta?
+          <a href="registro.html" class="link-accent">Regístrate aquí</a></small
+        >
+      </p>
+    </main>
+  </body>
+</html>
