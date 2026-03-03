@@ -31,7 +31,7 @@ if (!isset($_SESSION['id_rol']) || $_SESSION['id_rol'] != 1) {
     </nav>
 
     <header>
-        <img src="imagenes/logo-oficial.png" alt="Barbería Jafeth Logo" class="logo-img">
+        <img src="img/logo-oficial.png" alt="Barbería Jafeth Logo" class="logo-img">
         <h1>Panel de Gestión</h1>
         <div class="nav-buttons-container mt-15">
             <button onclick="mostrarSeccion('citas')" class="btn-filter">

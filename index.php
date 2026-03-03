@@ -27,7 +27,7 @@
     <!-- Navegación -->
     <nav class="landing-nav" id="navbar">
         <div class="nav-logo">
-            <img src="imagenes/logo-rojoof.png" alt="Logo La Barbería">
+            <img src="img/logo-rojoof.png" alt="Logo La Barbería">
             <span>LA BARBERÍA</span>
         </div>
         <div class="nav-links" id="nav-links">
@@ -45,10 +45,10 @@
     <section class="hero" id="inicio">
         <!-- Slider de fondo -->
         <div class="hero-slider">
-            <div class="hero-slide" style="background-image: url('imagenes/carrusel-header.jpg');"></div>
-            <div class="hero-slide" style="background-image: url('imagenes/carrusel-header2.jpg');"></div>
-            <div class="hero-slide" style="background-image: url('imagenes/carrusel-header3.jpg');"></div>
-            <div class="hero-slide" style="background-image: url('imagenes/carrusel-header4.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('img/carrusel-header.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('img/carrusel-header2.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('img/carrusel-header3.jpg');"></div>
+            <div class="hero-slide" style="background-image: url('img/carrusel-header4.jpg');"></div>
         </div>
 
         <div class="reveal">
@@ -75,7 +75,7 @@
                     música y el mejor servicio de la ciudad.</p>
             </div>
             <div class="about-image reveal">
-                <img src="imagenes/quienes-somos.jpg" alt="barbero">
+                <img src="img/quienes-somos.jpg" alt="barbero">
             </div>
         </div>
     </section>

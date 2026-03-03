@@ -327,7 +327,7 @@ section {
     justify-content: space-between;
     align-items: center;
     /* Reduced overlay opacity (0.5) to show background more clearly */
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('imagenes/fondolanding.jpg');
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('img/fondolanding.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

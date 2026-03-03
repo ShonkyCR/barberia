@@ -35,7 +35,7 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
         <button onclick="cerrarSesion()" class="btn-logout" style="position: absolute; top: 20px; right: 20px;">
             Cerrar Sesión
         </button>
-        <img src="imagenes/logo-oficial.png" alt="Barbería Jafeth Logo" class="logo-img">
+        <img src="img/logo-oficial.png" alt="Barbería Jafeth Logo" class="logo-img">
         <h1>Barbería Jafeth</h1>
         <p>Bienvenido de nuevo, <?php echo $_SESSION['nombre_usuario']; ?></p>
         <button onclick="abrirModalPerfil()" class="btn-editar-perfil">
