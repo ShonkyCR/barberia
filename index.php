@@ -45,10 +45,7 @@
     <section class="hero" id="inicio">
         <!-- Slider de fondo -->
         <div class="hero-slider">
-            <div class="hero-slide" style="background-image: url('img/carrusel-header.jpg');"></div>
-            <div class="hero-slide" style="background-image: url('img/carrusel-header2.jpg');"></div>
-            <div class="hero-slide" style="background-image: url('img/carrusel-header3.jpg');"></div>
-            <div class="hero-slide" style="background-image: url('img/carrusel-header4.jpg');"></div>
+            <div class="hero-slide"></div>
         </div>
 
         <div class="reveal">

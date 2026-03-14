@@ -4,6 +4,13 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 include 'conexion.php';
+session_start();
+
+// Seguridad: Solo admin o dev
+if (!isset($_SESSION['id_rol']) || ($_SESSION['id_rol'] != 1 && $_SESSION['id_rol'] != 3)) {
+    echo json_encode(["success" => false, "message" => "No autorizado"]);
+    exit;
+}
 
 if (ob_get_length())
     ob_clean();
@@ -98,14 +105,16 @@ try {
     } elseif ($tipo === 'barbero') {
         if ($accion === 'agregar') {
             $nombre = trim($_POST['nombre'] ?? '');
+            $cedula = trim($_POST['cedula'] ?? '');
+            $email = trim($_POST['email_barbero'] ?? '');
             if (empty($nombre))
                 throw new \Exception("El nombre del barbero es obligatorio.");
 
-            $stmt = mysqli_prepare($conexion, "INSERT INTO barberos (nombre) VALUES (?)");
+            $stmt = mysqli_prepare($conexion, "INSERT INTO barberos (nombre, cedula, email_barbero) VALUES (?, ?, ?)");
             if (!$stmt)
                 throw new \Exception("Error preparando INSERT: " . mysqli_error($conexion));
 
-            mysqli_stmt_bind_param($stmt, "s", $nombre);
+            mysqli_stmt_bind_param($stmt, "sss", $nombre, $cedula, $email);
             $success = mysqli_stmt_execute($stmt);
             if (!$success)
                 throw new \Exception("Error ejecutando INSERT: " . mysqli_stmt_error($stmt));
@@ -114,6 +123,8 @@ try {
         } elseif ($accion === 'editar') {
             $id = (int) ($_POST['id'] ?? 0);
             $nombre = trim($_POST['nombre'] ?? '');
+            $cedula = trim($_POST['cedula'] ?? '');
+            $email = trim($_POST['email_barbero'] ?? '');
             if ($id <= 0 || empty($nombre))
                 throw new \Exception("Datos incompletos para editar barbero.");
 
@@ -129,11 +140,11 @@ try {
             }
 
             // 2. Actualizar catálogo
-            $stmt = mysqli_prepare($conexion, "UPDATE barberos SET nombre = ? WHERE id_barbero = ?");
+            $stmt = mysqli_prepare($conexion, "UPDATE barberos SET nombre = ?, cedula = ?, email_barbero = ? WHERE id_barbero = ?");
             if (!$stmt)
                 throw new \Exception("Error preparando UPDATE: " . mysqli_error($conexion));
 
-            mysqli_stmt_bind_param($stmt, "si", $nombre, $id);
+            mysqli_stmt_bind_param($stmt, "sssi", $nombre, $cedula, $email, $id);
             $success = mysqli_stmt_execute($stmt);
 
             if ($success) {

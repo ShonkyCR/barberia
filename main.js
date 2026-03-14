@@ -55,6 +55,9 @@ function abrirModalPerfil() {
     .then((user) => {
       document.getElementById("perfil-nombre").value = user.nombre;
       document.getElementById("perfil-telefono").value = user.telefono || "";
+      document.getElementById("perfil-email").value = user.email || "";
+      const pC = document.getElementById("perfil-cedula");
+      if (pC) pC.value = user.cedula || "";
     })
     .catch((err) => console.error("Error al cargar perfil:", err));
 }
@@ -301,21 +304,46 @@ function cargarUsuarios() {
       if (!tabla) return;
       tabla.innerHTML = "";
       data.forEach((u) => {
-        const claseE = u.estado_usuario === "activo" ? "status-activo" : "status-inactivo";
         tabla.innerHTML += `
-            <tr class="row-animation">
+            <tr class="row-animation user-row" data-cedula="${u.cedula || ''}">
                 <td><strong>${u.nombre || "Sin nombre"}</strong></td>
+                <td>${u.cedula || '---'}</td>
                 <td>${u.email}</td>
-                <td><span class="status-badge ${claseE}">${u.estado_usuario}</span></td>
                 <td>
                     <div class="acciones-celda">
-                        <button onclick="prepararEditarUsuario(${u.id_usuario}, '${u.nombre}', '${u.telefono || ""}')" class="btn-edit" title="Editar datos y contraseña"><i class="fas fa-key"></i></button>
+                        <button onclick="prepararEditarUsuario(${u.id_usuario}, '${u.nombre}', '${u.cedula || ''}', '${u.telefono || ""}', '${u.email}')" class="btn-edit" title="Editar datos y contraseña"><i class="fas fa-key"></i></button>
                         <button onclick="eliminarUsuario(${u.id_usuario})" class="btn-delete" title="Borrar usuario"><i class="fas fa-user-slash"></i></button>
                     </div>
                 </td>
             </tr>`;
       });
     });
+}
+
+function cambiarRol(id, checked) {
+  const d = new FormData();
+  d.append("id_usuario", id);
+  d.append("id_rol", checked ? 1 : 2); // 1 = Admin, 2 = Cliente
+
+  fetch("actualizar_rol.php", { method: "POST", body: d })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        mostrarMensaje("¡Rol actualizado!");
+      } else {
+        mostrarMensaje(data.message || "Error al actualizar rol", "error");
+        cargarUsuarios(); // Revertir visualmente si falló
+      }
+    });
+}
+
+function filtrarUsuariosPorCedula() {
+  const query = document.getElementById("filter-cedula").value.toLowerCase();
+  const rows = document.querySelectorAll(".user-row");
+  rows.forEach(row => {
+    const cedula = row.getAttribute("data-cedula").toLowerCase();
+    row.style.display = cedula.includes(query) ? "" : "none";
+  });
 }
 
 function mostrarSeccion(seccion) {
@@ -347,13 +375,26 @@ function cargarTablaBarberos() {
       data.barberos.forEach(b => {
         const statusClass = b.activo == 1 ? "status-activo" : "status-inactivo";
         const statusText = b.activo == 1 ? "Activo" : "Inactivo";
+        const isAdmin = b.id_rol == 1;
+        const hasUser = b.id_usuario ? true : false;
+
         cuerpo.innerHTML += `
           <tr class="row-animation">
-            <td>${b.nombre}</td>
+            <td><strong>${b.nombre}</strong></td>
+            <td>${b.cedula || '---'}</td>
+            <td style="text-align:center;">
+              ${hasUser ? 
+                `<label class="switch">
+                  <input type="checkbox" ${isAdmin ? 'checked' : ''} onchange="cambiarRol(${b.id_usuario}, this.checked)">
+                  <span class="slider" title="${isAdmin ? 'Quitar Admin' : 'Hacer Admin'}"></span>
+                </label>` 
+                : `<button onclick="abrirModalCrearUsuario(${b.id_barbero}, '${b.nombre}', '${b.cedula}', '${b.email_barbero}')" class="btn-principal btn-chico" style="padding: 2px 8px; font-size: 0.8em;">Crear Usuario</button>`}
+            </td>
+            <td>${b.email_barbero || '---'}</td>
             <td><span class="status-badge ${statusClass}">${statusText}</span></td>
             <td>
               <div class="acciones-celda">
-                <button onclick="editarGestion('barbero', ${b.id_barbero}, '${b.nombre}')" class="btn-edit" title="Editar nombre"><i class="fas fa-edit"></i></button>
+                <button onclick="editarGestion('barbero', ${b.id_barbero}, '${b.nombre}', '', '${b.email_barbero || ''}', '${b.cedula || ''}')" class="btn-edit" title="Editar"><i class="fas fa-edit"></i></button>
                 <button onclick="toggleEstadoGestion('barbero', ${b.id_barbero}, ${b.activo == 1 ? 0 : 1})" class="btn-delete" title="${b.activo == 1 ? 'Ocultar del cliente' : 'Mostrar al cliente'}">
                   <i class="fas ${b.activo == 1 ? 'fa-eye-slash' : 'fa-eye'}"></i>
                 </button>
@@ -405,27 +446,51 @@ function abrirModalGestion(tipo) {
   document.getElementById("gestion-accion").value = 'agregar';
   document.getElementById("gestion-id").value = '';
   document.getElementById("gestion-nombre").value = '';
+  if (document.getElementById("gestion-email")) {
+    document.getElementById("gestion-email").value = '';
+  }
+  if (document.getElementById("gestion-cedula")) {
+    document.getElementById("gestion-cedula").value = '';
+  }
   document.getElementById("campo-categoria").style.display = tipo === 'servicio' ? 'block' : 'none';
+  document.getElementById("campo-email-barbero").style.display = tipo === 'barbero' ? 'block' : 'none';
   document.getElementById("modal-gestion").style.display = "flex";
 }
 
-function editarGestion(tipo, id, nombre, categoria = '') {
+function editarGestion(tipo, id, nombre, categoria = '', email = '', cedula = '') {
   document.getElementById("gestion-titulo").textContent = tipo === 'barbero' ? 'Editar Barbero' : 'Editar Servicio';
   document.getElementById("gestion-tipo").value = tipo;
   document.getElementById("gestion-accion").value = 'editar';
   document.getElementById("gestion-id").value = id;
   document.getElementById("gestion-nombre").value = nombre;
+  
   if(tipo === 'servicio') {
     document.getElementById("gestion-categoria").value = categoria;
     document.getElementById("campo-categoria").style.display = 'block';
+    document.getElementById("campo-email-barbero").style.display = 'none';
   } else {
+    document.getElementById("gestion-email").value = email;
+    document.getElementById("gestion-cedula").value = cedula;
     document.getElementById("campo-categoria").style.display = 'none';
+    document.getElementById("campo-email-barbero").style.display = 'block';
   }
   document.getElementById("modal-gestion").style.display = "flex";
 }
 
 function cerrarModalGestion() {
   document.getElementById("modal-gestion").style.display = "none";
+}
+
+// CREACIÓN DE USUARIO PARA BARBERO
+function abrirModalCrearUsuario(id, nombre, cedula, email) {
+  document.getElementById("crear-usuario-id-barbero").value = id;
+  document.getElementById("crear-usuario-info").textContent = `Creando cuenta para: ${nombre} (${cedula})`;
+  document.getElementById("crear-usuario-pass").value = "";
+  document.getElementById("modal-crear-usuario-barbero").style.display = "flex";
+}
+
+function cerrarModalCrearUsuario() {
+  document.getElementById("modal-crear-usuario-barbero").style.display = "none";
 }
 
 function toggleEstadoGestion(tipo, id, nuevoEstado) {
@@ -465,10 +530,12 @@ function eliminarGestion(tipo, id) {
     });
 }
 
-function prepararEditarUsuario(id, nombre, telefono) {
+function prepararEditarUsuario(id, nombre, cedula, telefono, email) {
   document.getElementById("edit-user-id").value = id;
   document.getElementById("edit-user-nombre").value = nombre;
+  document.getElementById("edit-user-cedula").value = cedula;
   document.getElementById("edit-user-telefono").value = telefono;
+  document.getElementById("edit-user-email").value = email;
   document.getElementById("modal-editar-usuario").style.display = "flex";
 }
 
@@ -547,8 +614,13 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         fetch("actualizar_usuario_admin.php", { method: "POST", body: new FormData(this) })
           .then((r) => r.json())
-          .then((d) => { if (d.status === "success") { mostrarMensaje("Datos actualizados!"); cerrarModalUser(); } });
+          .then((d) => { if (d.status === "success") { mostrarMensaje("Datos actualizados!"); cerrarModalUser(); cargarUsuarios(); } });
       });
+    }
+
+    const filterCedula = document.getElementById("filter-cedula");
+    if (filterCedula) {
+      filterCedula.addEventListener("input", filtrarUsuariosPorCedula);
     }
 
     const fg = document.getElementById("form-gestion");
@@ -584,6 +656,41 @@ document.addEventListener("DOMContentLoaded", () => {
           })
           .finally(() => {
             if (btn) btn.disabled = false;
+          });
+      });
+    }
+
+    const fcb = document.getElementById("form-crear-usuario-barbero");
+    if (fcb) {
+      fcb.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button[type="submit"]');
+        if (btn) btn.disabled = true;
+
+        fetch("crear_usuario_barbero.php", { method: "POST", body: new FormData(this) })
+          .then(async r => {
+            const text = await r.text();
+            try {
+              return JSON.parse(text);
+            } catch (err) {
+              console.error("Error parsing JSON:", text);
+              throw new Error("Respuesta inválida del servidor.");
+            }
+          })
+          .then(d => {
+            if (btn) btn.disabled = false;
+            if (d.success) {
+              mostrarMensaje("¡Usuario creado!");
+              cerrarModalCrearUsuario();
+              cargarTablaBarberos();
+            } else {
+              mostrarMensaje(d.message || "Error al crear usuario", "error");
+            }
+          })
+          .catch(err => {
+            if (btn) btn.disabled = false;
+            console.error(err);
+            mostrarMensaje("Error: " + err.message, "error");
           });
       });
     }
@@ -634,9 +741,11 @@ window.onclick = function(e) {
   const mP = document.getElementById("modal-perfil");
   const mE = document.getElementById("modal-editar");
   const mG = document.getElementById("modal-gestion");
+  const mCB = document.getElementById("modal-crear-usuario-barbero");
   if (e.target == mP) mP.style.display = "none";
   if (e.target == mE) mE.style.display = "none";
   if (e.target == mG) mG.style.display = "none";
+  if (e.target == mCB) mCB.style.display = "none";
 };
 
 // Intervalo Admin (Refresco silencioso)

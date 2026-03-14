@@ -10,11 +10,13 @@ if (!isset($_SESSION['id_usuario'])) {
 
 // Obtener datos actuales del usuario para rellenar el modal
 $id_usuario = $_SESSION['id_usuario'];
-$sql_user = "SELECT nombre, telefono FROM usuarios WHERE id_usuario = '$id_usuario'";
+$sql_user = "SELECT nombre, cedula, email, telefono FROM usuarios WHERE id_usuario = '$id_usuario'";
 $res_user = mysqli_query($conexion, $sql_user);
 $datos_usuario = mysqli_fetch_assoc($res_user);
 
 $nombre_actual = $datos_usuario['nombre'] ?? '';
+$cedula_actual = $datos_usuario['cedula'] ?? '';
+$email_actual = $datos_usuario['email'] ?? '';
 $telefono_actual = $datos_usuario['telefono'] ?? '';
 ?>
 <!DOCTYPE html>
@@ -32,9 +34,16 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
 
 
     <header>
-        <button onclick="cerrarSesion()" class="btn-logout" style="position: absolute; top: 20px; right: 20px;">
-            Cerrar Sesión
-        </button>
+        <div class="header-actions">
+            <?php if ($_SESSION['id_rol'] == 3): ?>
+                <button onclick="window.location.href='admin.php'" class="btn-filter btn-secondary-dark">
+                    <i class="fas fa-user-shield"></i> Vista Admin
+                </button>
+            <?php endif; ?>
+            <button onclick="cerrarSesion()" class="btn-logout">
+                Cerrar Sesión
+            </button>
+        </div>
         <img src="img/logo-oficial.png" alt="Barbería Jafeth Logo" class="logo-img">
         <h1>Barbería Jafeth</h1>
         <p>Bienvenido de nuevo, <?php echo $_SESSION['nombre_usuario']; ?></p>
@@ -72,7 +81,7 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
             </form>
         </section>
 
-        <section id="mis-citas" class="table-container" style="margin-top: 2rem;">
+        <section id="mis-citas" class="table-container mt-2rem">
             <h2>Mis citas del mes</h2>
             <table>
                 <thead>
@@ -87,7 +96,7 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
                 </thead>
                 <tbody id="cuerpo-tabla-cliente">
                     <tr>
-                        <td colspan="6" style="text-align:center;">Cargando tus citas...</td>
+                        <td colspan="6" class="text-center">Cargando tus citas...</td>
                     </tr>
                 </tbody>
             </table>
@@ -95,7 +104,7 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
     </main>
 
     <script src="main.js"></script>
-    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    <div id="toast-container" class="toast-container-fixed"></div>
 
     <!-- MOVED MODAL HERE TO FIX POSITIONING -->
     <div id="modal-perfil" class="modal-overlay">
@@ -109,12 +118,22 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
                         value="<?php echo htmlspecialchars($nombre_actual); ?>" required>
                 </div>
                 <div class="campo">
+                    <label><i class="fas fa-id-card"></i> Cédula</label>
+                    <input type="text" id="perfil-cedula" value="<?php echo htmlspecialchars($cedula_actual); ?>"
+                        readonly class="readonly-field">
+                </div>
+                <div class="campo">
+                    <label><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                    <input type="email" id="perfil-email" name="email"
+                        value="<?php echo htmlspecialchars($email_actual); ?>" required>
+                </div>
+                <div class="campo">
                     <label><i class="fas fa-phone"></i> Teléfono</label>
                     <input type="tel" id="perfil-telefono" name="telefono"
                         value="<?php echo htmlspecialchars($telefono_actual); ?>" placeholder="88778877">
                 </div>
                 <div class="campo">
-                    <label><i class="fas fa-lock"></i> Nueva Contraseña</label>
+                    <label><i class="fas fa-lock"></i> Cambiar Contraseña (si deja vacío, no se cambia)</label>
                     <input type="password" id="perfil-pass" name="password" placeholder="Mínimo 6 caracteres">
                 </div>
                 <button type="submit" class="btn-guardar-cambios">

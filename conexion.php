@@ -24,7 +24,19 @@ mysqli_query($conexion, "CREATE TABLE IF NOT EXISTS servicios (
 mysqli_query($conexion, "CREATE TABLE IF NOT EXISTS barberos (
     id_barbero INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
+    email_barbero VARCHAR(255),
     activo TINYINT(1) DEFAULT 1
+)");
+
+mysqli_query($conexion, "CREATE TABLE IF NOT EXISTS citas_barberia (
+    id_cita INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    servicio VARCHAR(100),
+    barbero VARCHAR(100),
+    fecha DATE,
+    hora TIME,
+    estado VARCHAR(20),
+    id_evento_google VARCHAR(255)
 )");
 
 // Poblado inicial

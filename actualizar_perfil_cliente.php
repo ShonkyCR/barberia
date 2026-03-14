@@ -11,13 +11,14 @@ if (!isset($_SESSION['id_usuario'])) {
 
 $id_usuario = $_SESSION['id_usuario'];
 $nombre = mysqli_real_escape_string($conexion, $_POST['nombre']);
+$email = mysqli_real_escape_string($conexion, $_POST['email']);
 $telefono = mysqli_real_escape_string($conexion, $_POST['telefono']);
 $password = $_POST['password'];
 
-// 1. Actualización básica (Nombre y Teléfono) con Sentencias Preparadas
-$sql = "UPDATE usuarios SET nombre = ?, telefono = ? WHERE id_usuario = ?";
+// 1. Actualización básica (Nombre, Email y Teléfono) con Sentencias Preparadas
+$sql = "UPDATE usuarios SET nombre = ?, email = ?, telefono = ? WHERE id_usuario = ?";
 $stmt = mysqli_prepare($conexion, $sql);
-mysqli_stmt_bind_param($stmt, "ssi", $nombre, $telefono, $id_usuario);
+mysqli_stmt_bind_param($stmt, "sssi", $nombre, $email, $telefono, $id_usuario);
 
 if (mysqli_stmt_execute($stmt)) {
     // 2. ¿El usuario quiere cambiar la contraseña?

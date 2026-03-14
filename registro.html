@@ -19,6 +19,9 @@
             <label>Nombre Completo:</label>
             <input type="text" name="usuario" placeholder="Nombre y apellido" required>
 
+            <label>Cédula:</label>
+            <input type="text" name="cedula" placeholder="Ej: 108520456" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+
             <label>Correo Electrónico:</label>
             <input type="email" name="email" placeholder="correo@ejemplo.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Por favor, introduce un correo válido (ejemplo@correo.com)" required>
 
@@ -30,7 +33,7 @@
 
             <button type="submit" class="btn-principal">Registrarme</button>
         </form>
-        <p style="text-align: center; margin-top: 15px;">
+        <p class="text-center mt-15">
             <small>¿Ya tienes cuenta? 
                 <a href="login.html" class="link-accent">Inicia sesión aquí</a>
             </small>

@@ -52,6 +52,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_bind_param($stmt_insert, "issss", $id_usuario, $servicio, $barbero, $fecha, $hora);
 
         if (mysqli_stmt_execute($stmt_insert)) {
+            $id_cita_recien_creada = mysqli_insert_id($conexion);
+
+            // --- INTEGRACIÓN GOOGLE CALENDAR ---
+            try {
+                include_once 'google_calendar_helper.php';
+                $helper = new GoogleCalendarHelper();
+
+                // Obtener el email del barbero de la BD
+                $sql_b = "SELECT email_barbero FROM barberos WHERE nombre = ?";
+                $stmt_b = mysqli_prepare($conexion, $sql_b);
+                mysqli_stmt_bind_param($stmt_b, "s", $barbero);
+                mysqli_stmt_execute($stmt_b);
+                $res_b = mysqli_stmt_get_result($stmt_b);
+                $row_b = mysqli_fetch_assoc($res_b);
+
+                $calendarId = ($row_b && !empty($row_b['email_barbero'])) ? $row_b['email_barbero'] : null;
+
+                if ($calendarId) {
+                    $summary = "Cita Barbería: $servicio";
+                    $description = "Cita agendada para un cliente. Servicio: $servicio. Barbero: $barbero.";
+                    $googleEventId = $helper->crearEvento($calendarId, $summary, $description, $fecha, $hora);
+
+                    if ($googleEventId) {
+                        $sql_update_google = "UPDATE citas_barberia SET id_evento_google = ? WHERE id_cita = ?";
+                        $stmt_ug = mysqli_prepare($conexion, $sql_update_google);
+                        mysqli_stmt_bind_param($stmt_ug, "si", $googleEventId, $id_cita_recien_creada);
+                        mysqli_stmt_execute($stmt_ug);
+                    }
+                } else {
+                    error_log("No se pudo sincronizar: El barbero '$barbero' no tiene un email configurado.");
+                }
+            } catch (Exception $e) {
+                error_log("Error sincronizando con Google: " . $e->getMessage());
+            }
+            // ------------------------------------
+
             echo "<script>
                         alert('¡Cita agendada con éxito!');
                         window.location.href = 'clientes.php';

@@ -7,7 +7,7 @@ $email_ingresado = mysqli_real_escape_string($conexion, $_POST['usuario'] ?? '')
 $password_escrita = $_POST['password'] ?? '';
 
 // Consulta con Sentencias Preparadas
-$sql = "SELECT id_usuario, nombre, password, id_rol FROM usuarios WHERE email = ?";
+$sql = "SELECT id_usuario, nombre, password, id_rol FROM usuarios WHERE cedula = ?";
 $stmt = mysqli_prepare($conexion, $sql);
 mysqli_stmt_bind_param($stmt, "s", $email_ingresado);
 mysqli_stmt_execute($stmt);
@@ -23,7 +23,7 @@ if ($row = mysqli_fetch_assoc($resultado)) {
         $_SESSION['id_rol'] = (int) $row['id_rol'];
 
         // REDIRECCIÓN AUTOMÁTICA
-        if ($_SESSION['id_rol'] === 1) {
+        if ($_SESSION['id_rol'] === 1 || $_SESSION['id_rol'] === 3) {
             header("Location: admin.php");
         } else {
             header("Location: clientes.php");
