@@ -122,40 +122,98 @@ function cargarCitasCliente() {
     .then((res) => res.json())
     .then((data) => {
       const tabla = document.getElementById("cuerpo-tabla-cliente");
-      if (!tabla) return;
-      tabla.innerHTML = "";
-      if (data.length === 0) {
-        tabla.innerHTML = `<tr><td colspan="6" style="text-align:center;">No tienes citas programadas aún.</td></tr>`;
+      if (tabla) {
+        tabla.innerHTML = "";
+        if (data.length === 0) {
+          tabla.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#999;">No tienes citas programadas como cliente aún.</td></tr>`;
+        } else {
+          data.forEach((cita) => {
+            const estadoNorm = (cita.estado || "").trim().toLowerCase();
+            tabla.innerHTML += `
+            <tr>
+                <td>${cita.servicio}</td>
+                <td>${cita.barbero}</td>
+                <td>${cita.fecha}</td>
+                <td>${formatear12h(cita.hora)}</td>
+                <td><span class="status-badge status-${estadoNorm}">${cita.estado}</span></td>
+                <td class="acciones-celda">
+                    ${estadoNorm === "pendiente" ? `<button onclick="cancelarMiCita(${cita.id_cita})" class="btn-delete btn-accion"><i class="fas fa-times-circle" style="color:#ee5253; font-size:1.3rem;"></i></button>` : "---"}
+                </td>
+            </tr>`;
+          });
+        }
+      }
+      
+      // Cargar agenda de trabajo SIEMPRE
+      cargarAgendaBarbero();
+    });
+}
+
+function cargarAgendaBarbero() {
+  const seccionAgenda = document.getElementById("agenda-barbero");
+  const tablaAgenda = document.getElementById("cuerpo-tabla-agenda");
+  if (!seccionAgenda || !tablaAgenda) return;
+
+  fetch("obtener_agenda_barbero.php")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.no_es_barbero) {
+        seccionAgenda.style.display = "none";
         return;
       }
+
+      seccionAgenda.style.display = "block";
+      tablaAgenda.innerHTML = "";
+
+      if (data.length === 0) {
+        tablaAgenda.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#999;"><i class="fas fa-calendar-times" style="display:block; font-size:2rem; margin-bottom:10px;"></i> No tienes citas de trabajo programadas aun</td></tr>`;
+        return;
+      }
+
       data.forEach((cita) => {
         const estadoNorm = (cita.estado || "").trim().toLowerCase();
-        tabla.innerHTML += `
+        tablaAgenda.innerHTML += `
         <tr>
+            <td><strong>${cita.cliente}</strong></td>
+            <td><a href="tel:${cita.telefono}" style="color:inherit;">${cita.telefono || '---'}</a></td>
             <td>${cita.servicio}</td>
-            <td>${cita.barbero}</td>
             <td>${cita.fecha}</td>
             <td>${formatear12h(cita.hora)}</td>
             <td><span class="status-badge status-${estadoNorm}">${cita.estado}</span></td>
             <td class="acciones-celda">
-                ${estadoNorm === "pendiente" ? `<button onclick="cancelarMiCita(${cita.id_cita})" class="btn-delete btn-accion"><i class="fas fa-times-circle" style="color:#ee5253; font-size:1.3rem;"></i></button>` : "---"}
+                ${estadoNorm === "pendiente" ? `<button onclick="cancelarMiCita(${cita.id_cita}, true)" class="btn-delete btn-accion" title="Cancelar esta cita de trabajo"><i class="fas fa-times-circle" style="color:#ee5253; font-size:1.3rem;"></i></button>` : "---"}
             </td>
         </tr>`;
       });
-    });
+    })
+    .catch((err) => console.error("Error al cargar agenda:", err));
 }
 
-function cancelarMiCita(idCita) {
-  if (!confirm("¿Estás seguro de que deseas cancelar esta cita?")) return;
+function cancelarMiCita(idCita, esAgendaTrabajo = false) {
+  const msg = esAgendaTrabajo 
+    ? "¿Estás seguro de que deseas cancelar esta cita de TRABAJO? El cliente ya no aparecerá en tu agenda." 
+    : "¿Estás seguro de que deseas cancelar esta cita?";
+    
+  if (!confirm(msg)) return;
+  
   const datos = new FormData();
   datos.append("id_cita", idCita);
+  if (esAgendaTrabajo) datos.append("es_barbero", "1");
+
   fetch("cancelar_cita_cliente.php", { method: "POST", body: datos })
     .then((res) => res.json())
     .then((data) => {
       if (data.success) {
         mostrarMensaje("¡Cita cancelada!", "success");
+
+        // Si el barbero canceló y tenemos datos, ofrecemos notificar por WhatsApp
+        if (data.datos_notificacion) {
+          procesarNotificacionWhatsApp(data.datos_notificacion);
+        }
+
         cargarCitasCliente();
-        actualizarHorasDisponibles();
+        if (typeof cargarAgendaBarbero === 'function') cargarAgendaBarbero();
+        if (typeof actualizarHorasDisponibles === 'function') actualizarHorasDisponibles();
       } else {
         mostrarMensaje("Error: " + (data.error || "No se pudo cancelar"), "error");
       }
@@ -185,7 +243,7 @@ function dibujarTabla(data, animar = false) {
   const claseAnim = animar ? 'row-animation' : '';
 
   if (!data || data.length === 0) {
-    cuerpo.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#666;"><i class="fas fa-info-circle"></i> No hay citas registradas.</td></tr>`;
+    cuerpo.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#666;"><i class="fas fa-info-circle"></i> No hay citas registradas.</td></tr>`;
     return;
   }
 
@@ -194,6 +252,7 @@ function dibujarTabla(data, animar = false) {
     cuerpo.innerHTML += `
             <tr class="${claseAnim}">
                 <td>${cita.cliente}</td>
+                <td><a href="tel:${cita.telefono}" style="color:inherit;">${cita.telefono || '---'}</a></td>
                 <td>${cita.servicio}</td>
                 <td>${cita.barbero}</td>
                 <td>${cita.fecha}</td>
@@ -230,10 +289,62 @@ function eliminarCita(id) {
   if (!confirm("¿Borrar esta cita?")) return;
   const d = new FormData(); d.append("id_cita", id);
   fetch("eliminar_cita.php", { method: "POST", body: d })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error("Respuesta de red no OK");
+      return res.json();
+    })
     .then((data) => {
-      if (data.success) { mostrarMensaje("Eliminada!"); cargarTablaCitas(); }
+      console.log("Respuesta de eliminar_cita:", data);
+      if (data.success) { 
+        mostrarMensaje("¡Eliminada!", "success"); 
+        
+        // Ofrecer enviar WhatsApp si tenemos los datos
+        if (data.datos_notificacion) {
+            procesarNotificacionWhatsApp(data.datos_notificacion);
+        } else {
+            console.log("No se recibieron datos de notificación.");
+        }
+        
+        cargarTablaCitas(); 
+      } else {
+        mostrarMensaje(data.error || "Error al eliminar", "error");
+      }
+    })
+    .catch(err => {
+      console.error("Error en fetch eliminarCita:", err);
+      mostrarMensaje("Error de conexión al servidor", "error");
     });
+}
+
+/**
+ * Función centralizada para procesar datos de notificación y abrir WhatsApp
+ * @param {Object} d - Datos del cliente y cita (cliente, telefono, fecha, hora, barbero)
+ */
+function procesarNotificacionWhatsApp(d) {
+    console.log("Preparando aviso de WhatsApp para:", d);
+    if (!d || !d.telefono) {
+        console.warn("No hay datos de teléfono para WhatsApp:", d);
+        return;
+    }
+
+    const horaFormateada = d.hora ? (typeof formatear12h === 'function' ? formatear12h(d.hora) : d.hora) : "---";
+    const mensajeWa = `Hola ${d.cliente}, soy de Barbería Jafeth. Lamento informarte que por una emergencia hemos tenido que cancelar tu cita del día ${d.fecha} a las ${horaFormateada}. Por favor contáctanos para reagendar.`;
+    
+    // Limpiar el teléfono
+    let telLimpio = String(d.telefono).replace(/\D/g, ''); 
+    if (telLimpio.length === 8) telLimpio = "506" + telLimpio;
+
+    const urlWa = `https://wa.me/${telLimpio}?text=${encodeURIComponent(mensajeWa)}`;
+    
+    if (confirm("¿Deseas enviar un aviso por WhatsApp al cliente ahora?")) {
+        const a = document.createElement("a");
+        a.href = urlWa;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
 }
 
 function editarCita(id, servicio, barbero, fecha, hora) {
@@ -557,14 +668,19 @@ function eliminarUsuario(id) {
 document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
 
-  // RUTINA CLIENTES
-  if (path.includes("clientes.php")) {
-    // Cargar catálogos dinámicos
-    cargarCatalogosCliente();
-
-    cargarCitasCliente();
-    const sb = document.getElementById("barbero");
-    if (sb) sb.addEventListener("change", actualizarHorasDisponibles);
+  // RUTINA CLIENTES / BARBEROS
+  if (path.includes("clientes.php") || path.includes("barberos.php")) {
+    
+    if (path.includes("clientes.php")) {
+        // Cargar catálogos dinámicos (solo necesarios para agendar)
+        cargarCatalogosCliente();
+        cargarCitasCliente();
+        const sb = document.getElementById("barbero");
+        if (sb) sb.addEventListener("change", actualizarHorasDisponibles);
+    } else {
+        // Solo para barberos.php
+        cargarAgendaBarbero();
+    }
 
     const fp = document.getElementById("form-perfil");
     if (fp) {

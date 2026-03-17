@@ -74,6 +74,7 @@ if (!isset($_SESSION['id_rol']) || ($_SESSION['id_rol'] != 1 && $_SESSION['id_ro
                     <thead>
                         <tr>
                             <th>Cliente</th>
+                            <th>Teléfono</th>
                             <th>Servicio</th>
                             <th>Barbero</th>
                             <th>Fecha</th>

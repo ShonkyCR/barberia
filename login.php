@@ -25,6 +25,8 @@ if ($row = mysqli_fetch_assoc($resultado)) {
         // REDIRECCIÓN AUTOMÁTICA
         if ($_SESSION['id_rol'] === 1 || $_SESSION['id_rol'] === 3) {
             header("Location: admin.php");
+        } elseif ($_SESSION['id_rol'] === 4) {
+            header("Location: barberos.php");
         } else {
             header("Location: clientes.php");
         }

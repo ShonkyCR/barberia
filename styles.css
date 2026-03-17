@@ -17,6 +17,7 @@ html {
     --blanco-hueso: #f5f5f5; /* Texto principal */
     --gris-detalle: #b0b0b0; /* Textos secundarios */
     --azul-barber: #1976d2; /* Azul para acento (poste barbero) */
+    --dorado-barber: #d4af37; /* Dorado para agenda de trabajo */
     --sombra: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Sombra suave */
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -1157,4 +1158,19 @@ input:checked + .slider:before {
 /* Hover effect on toggle */
 .switch:hover .slider {
     box-shadow: 0 0 8px rgba(25, 118, 210, 0.4);
+}
+
+/* --- 20. ESTILOS ESPECÍFICOS CLIENTES/BARBEROS --- */
+#agenda-barbero {
+    display: none; 
+    border-top: 3px solid var(--rojo-secundario); 
+    padding-top: 2rem;
+}
+
+.text-rojo-accent {
+    color: var(--rojo-secundario) !important;
+}
+
+.title-padding {
+    padding-left: 20px !important;
 }

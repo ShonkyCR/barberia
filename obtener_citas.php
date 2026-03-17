@@ -11,7 +11,7 @@ $sql_update = "UPDATE citas_barberia
 mysqli_query($conexion, $sql_update);
 
 // Consulta base
-$sql = "SELECT c.id_cita, u.nombre AS cliente, c.servicio, c.barbero, c.fecha, c.hora, c.estado 
+$sql = "SELECT c.id_cita, u.nombre AS cliente, u.telefono, c.servicio, c.barbero, c.fecha, c.hora, c.estado 
         FROM citas_barberia c 
         JOIN usuarios u ON c.id_usuario = u.id_usuario";
 
@@ -35,13 +35,14 @@ if (!$stmt) {
 }
 
 mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $id_cita, $cliente, $servicio, $barbero, $fecha, $hora, $estado);
+mysqli_stmt_bind_result($stmt, $id_cita, $cliente, $telefono, $servicio, $barbero, $fecha, $hora, $estado);
 
 $citas = [];
 while (mysqli_stmt_fetch($stmt)) {
     $citas[] = [
         'id_cita' => $id_cita,
         'cliente' => $cliente,
+        'telefono' => $telefono,
         'servicio' => $servicio,
         'barbero' => $barbero,
         'fecha' => $fecha,

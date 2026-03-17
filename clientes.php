@@ -55,52 +55,54 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
     </header>
 
     <main class="main-wide">
-        <section id="reserva">
-            <h2>Agenda tu cita</h2>
-            <form id="appointment-form" action="guardar_cita.php" method="POST">
-                <label>Servicio:</label>
-                <select id="servicio" name="servicio" required>
-                    <option value="">Cargando servicios...</option>
-                </select>
+        <?php if ($_SESSION['id_rol'] != 4): ?>
+            <section id="reserva">
+                <h2>Agenda tu cita</h2>
+                <form id="appointment-form" action="guardar_cita.php" method="POST">
+                    <label>Servicio:</label>
+                    <select id="servicio" name="servicio" required>
+                        <option value="">Cargando servicios...</option>
+                    </select>
 
-                <label>Selecciona tu Barbero:</label>
-                <select id="barbero" name="barbero" onchange="actualizarHorasDisponibles()" required>
-                    <option value="">Cargando barberos...</option>
-                </select>
+                    <label>Selecciona tu Barbero:</label>
+                    <select id="barbero" name="barbero" onchange="actualizarHorasDisponibles()" required>
+                        <option value="">Cargando barberos...</option>
+                    </select>
 
-                <label>Selecciona una fecha:</label>
-                <input type="date" id="fecha-cita" name="fecha" min="<?php echo date('Y-m-d'); ?>"
-                    onchange="actualizarHorasDisponibles()" required>
+                    <label>Selecciona una fecha:</label>
+                    <input type="date" id="fecha-cita" name="fecha" min="<?php echo date('Y-m-d'); ?>"
+                        onchange="actualizarHorasDisponibles()" required>
 
-                <label>Hora disponible:</label>
-                <select id="hora-cita" name="hora" required>
-                    <option value="">Selecciona un día primero...</option>
-                </select>
+                    <label>Hora disponible:</label>
+                    <select id="hora-cita" name="hora" required>
+                        <option value="">Selecciona un día primero...</option>
+                    </select>
 
-                <button type="submit" class="btn-principal">Agendar Cita</button>
-            </form>
-        </section>
+                    <button type="submit" class="btn-principal">Agendar Cita</button>
+                </form>
+            </section>
 
-        <section id="mis-citas" class="table-container mt-2rem">
-            <h2>Mis citas del mes</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Servicio</th>
-                        <th>Barbero</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpo-tabla-cliente">
-                    <tr>
-                        <td colspan="6" class="text-center">Cargando tus citas...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+            <section id="mis-citas" class="table-container mt-2rem">
+                <h2 class="title-padding">Mis citas del mes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Servicio</th>
+                            <th>Barbero</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-tabla-cliente">
+                        <tr>
+                            <td colspan="6" class="text-center">Cargando tus citas...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        <?php endif; ?>
     </main>
 
     <script src="main.js"></script>
