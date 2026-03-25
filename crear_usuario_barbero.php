@@ -40,7 +40,7 @@ mysqli_stmt_close($stmt_check);
 // 3. Crear el usuario
 $passHash = password_hash($password, PASSWORD_DEFAULT);
 // Usamos la cédula como 'usuario' ya que es el estándar actual del proyecto
-$sql = "INSERT INTO usuarios (nombre, cedula, usuario, email, password, id_rol, estado_usuario) VALUES (?, ?, ?, ?, ?, 2, 'activo')";
+$sql = "INSERT INTO usuarios (nombre, cedula, usuario, email, password, id_rol, estado_usuario) VALUES (?, ?, ?, ?, ?, 4, 'activo')";
 $stmt_ins = mysqli_prepare($conexion, $sql);
 mysqli_stmt_bind_param($stmt_ins, "sssss", $nombre, $cedula, $cedula, $email, $passHash);
 

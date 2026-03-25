@@ -173,11 +173,34 @@ try {
             }
         } elseif ($accion === 'eliminar') {
             $id = (int) ($_POST['id'] ?? 0);
+
+            // 1. Obtener la cédula del barbero para poder borrar su usuario también
+            $cedula_borrar = '';
+            $get_c = mysqli_prepare($conexion, "SELECT cedula FROM barberos WHERE id_barbero = ?");
+            if ($get_c) {
+                mysqli_stmt_bind_param($get_c, "i", $id);
+                mysqli_stmt_execute($get_c);
+                mysqli_stmt_bind_result($get_c, $cedula_borrar);
+                mysqli_stmt_fetch($get_c);
+                mysqli_stmt_close($get_c);
+            }
+
+            // 2. Borrar de la tabla barberos
             $stmt = mysqli_prepare($conexion, "DELETE FROM barberos WHERE id_barbero = ?");
             if ($stmt) {
                 mysqli_stmt_bind_param($stmt, "i", $id);
                 $success = mysqli_stmt_execute($stmt);
                 mysqli_stmt_close($stmt);
+
+                // 3. Si se borró con éxito y tenemos la cédula, borramos el usuario (Login)
+                if ($success && !empty($cedula_borrar)) {
+                    $stmt_u = mysqli_prepare($conexion, "DELETE FROM usuarios WHERE cedula = ?");
+                    if ($stmt_u) {
+                        mysqli_stmt_bind_param($stmt_u, "s", $cedula_borrar);
+                        mysqli_stmt_execute($stmt_u);
+                        mysqli_stmt_close($stmt_u);
+                    }
+                }
             }
         }
     }

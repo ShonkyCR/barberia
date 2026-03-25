@@ -431,10 +431,10 @@ function cargarUsuarios() {
     });
 }
 
-function cambiarRol(id, checked) {
+function cambiarRol(id, checked, roleFallback = 2) {
   const d = new FormData();
   d.append("id_usuario", id);
-  d.append("id_rol", checked ? 1 : 2); // 1 = Admin, 2 = Cliente
+  d.append("id_rol", checked ? 1 : roleFallback);
 
   fetch("actualizar_rol.php", { method: "POST", body: d })
     .then(res => res.json())
@@ -496,7 +496,7 @@ function cargarTablaBarberos() {
             <td style="text-align:center;">
               ${hasUser ? 
                 `<label class="switch">
-                  <input type="checkbox" ${isAdmin ? 'checked' : ''} onchange="cambiarRol(${b.id_usuario}, this.checked)">
+                  <input type="checkbox" ${isAdmin ? 'checked' : ''} onchange="cambiarRol(${b.id_usuario}, this.checked, 4)">
                   <span class="slider" title="${isAdmin ? 'Quitar Admin' : 'Hacer Admin'}"></span>
                 </label>` 
                 : `<button onclick="abrirModalCrearUsuario(${b.id_barbero}, '${b.nombre}', '${b.cedula}', '${b.email_barbero}')" class="btn-principal btn-chico" style="padding: 2px 8px; font-size: 0.8em;">Crear Usuario</button>`}
