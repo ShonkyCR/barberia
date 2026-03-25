@@ -328,7 +328,7 @@ function procesarNotificacionWhatsApp(d) {
     }
 
     const horaFormateada = d.hora ? (typeof formatear12h === 'function' ? formatear12h(d.hora) : d.hora) : "---";
-    const mensajeWa = `Hola ${d.cliente}, soy de Barbería Jafeth. Lamento informarte que por una emergencia hemos tenido que cancelar tu cita del día ${d.fecha} a las ${horaFormateada}. Por favor contáctanos para reagendar.`;
+    const mensajeWa = `Hola ${d.cliente}, soy de la Barbería. Lamento informarte que por una emergencia hemos tenido que cancelar tu cita del día ${d.fecha} a las ${horaFormateada}. Por favor contáctanos para reagendar.`;
     
     // Limpiar el teléfono
     let telLimpio = String(d.telefono).replace(/\D/g, ''); 

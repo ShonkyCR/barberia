@@ -24,7 +24,7 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbería Jafeth | Panel de Barbero</title>
+    <title>Barbería | Panel de Barbero</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -86,19 +86,23 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
             <form id="form-perfil">
                 <div class="campo">
                     <label><i class="fas fa-user"></i> Nombre Completo</label>
-                    <input type="text" id="perfil-nombre" name="nombre" value="<?php echo htmlspecialchars($nombre_actual); ?>" required>
+                    <input type="text" id="perfil-nombre" name="nombre"
+                        value="<?php echo htmlspecialchars($nombre_actual); ?>" required>
                 </div>
                 <div class="campo">
                     <label><i class="fas fa-id-card"></i> Cédula</label>
-                    <input type="text" id="perfil-cedula" value="<?php echo htmlspecialchars($cedula_actual); ?>" readonly class="readonly-field">
+                    <input type="text" id="perfil-cedula" value="<?php echo htmlspecialchars($cedula_actual); ?>"
+                        readonly class="readonly-field">
                 </div>
                 <div class="campo">
                     <label><i class="fas fa-envelope"></i> Correo Electrónico</label>
-                    <input type="email" id="perfil-email" name="email" value="<?php echo htmlspecialchars($email_actual); ?>" required>
+                    <input type="email" id="perfil-email" name="email"
+                        value="<?php echo htmlspecialchars($email_actual); ?>" required>
                 </div>
                 <div class="campo">
                     <label><i class="fas fa-phone"></i> Teléfono</label>
-                    <input type="tel" id="perfil-telefono" name="telefono" value="<?php echo htmlspecialchars($telefono_actual); ?>" placeholder="88778877">
+                    <input type="tel" id="perfil-telefono" name="telefono"
+                        value="<?php echo htmlspecialchars($telefono_actual); ?>" placeholder="88778877">
                 </div>
                 <div class="campo">
                     <label><i class="fas fa-lock"></i> Cambiar Contraseña (si deja vacío, no se cambia)</label>
