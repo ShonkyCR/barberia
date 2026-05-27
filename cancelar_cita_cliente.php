@@ -37,70 +37,75 @@ try {
     // --- INTEGRACIÓN GOOGLE CALENDAR ---
     try {
         // Obtener ID del evento y barbero antes de borrar la cita
-        // Si viene como solicitud de barbero, validamos que él sea el barbero asignado
         if ($es_barbero_solicitud) {
             // Buscamos el nombre oficial del barbero por su cédula para evitar desajustes de texto en la sesión
             $sql_nom = "SELECT nombre FROM barberos WHERE cedula = (SELECT cedula FROM usuarios WHERE id_usuario = ?)";
             $stmt_nom = mysqli_prepare($conexion, $sql_nom);
             mysqli_stmt_bind_param($stmt_nom, "i", $id_usuario);
             mysqli_stmt_execute($stmt_nom);
-            $res_nom = mysqli_stmt_get_result($stmt_nom);
-            $row_nom = mysqli_fetch_assoc($res_nom);
-            
-            // Si es DEV y no es barbero, usamos su nombre de sesión como respaldo
-            $nombre_barbero_oficial = $row_nom ? $row_nom['nombre'] : $_SESSION['nombre_usuario'];
+            mysqli_stmt_bind_result($stmt_nom, $nombre_barbero_oficial_res);
+            $nombre_barbero_oficial = (mysqli_stmt_fetch($stmt_nom)) ? $nombre_barbero_oficial_res : $_SESSION['nombre_usuario'];
+            mysqli_stmt_close($stmt_nom);
 
             $sql_g = "SELECT c.id_evento_google, c.barbero, u.nombre as cliente_nombre, u.telefono as cliente_telefono, c.fecha, c.hora 
                       FROM citas_barberia c 
-                      JOIN usuarios u ON c.id_usuario = u.id_usuario
+                      LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario
                       WHERE c.id_cita = ? AND c.barbero = ?";
             $stmt_g = mysqli_prepare($conexion, $sql_g);
             mysqli_stmt_bind_param($stmt_g, "is", $id_cita, $nombre_barbero_oficial);
+            mysqli_stmt_execute($stmt_g);
+            mysqli_stmt_bind_result($stmt_g, $id_evento_google, $barbero_res, $cliente_nombre, $cliente_telefono, $fecha_res, $hora_res);
         } else {
             $sql_g = "SELECT id_evento_google, barbero FROM citas_barberia WHERE id_cita = ? AND id_usuario = ?";
             $stmt_g = mysqli_prepare($conexion, $sql_g);
             mysqli_stmt_bind_param($stmt_g, "ii", $id_cita, $id_usuario);
+            mysqli_stmt_execute($stmt_g);
+            mysqli_stmt_bind_result($stmt_g, $id_evento_google, $barbero_res);
         }
         
-        mysqli_stmt_execute($stmt_g);
-        $res_g = mysqli_stmt_get_result($stmt_g);
-        $row_g = mysqli_fetch_assoc($res_g);
-
-        if ($row_g) {
+        if (mysqli_stmt_fetch($stmt_g)) {
             // Si es barbero, guardamos datos para WhatsApp
             if ($es_barbero_solicitud) {
                 $response['datos_notificacion'] = [
-                    'cliente' => $row_g['cliente_nombre'],
-                    'telefono' => $row_g['cliente_telefono'],
-                    'fecha' => $row_g['fecha'],
-                    'hora' => $row_g['hora'],
-                    'barbero' => $row_g['barbero']
+                    'cliente' => $cliente_nombre,
+                    'telefono' => $cliente_telefono,
+                    'fecha' => $fecha_res,
+                    'hora' => $hora_res,
+                    'barbero' => $barbero_res
                 ];
             }
+            
+            mysqli_stmt_close($stmt_g);
 
-            if (!empty($row_g['id_evento_google'])) {
-                include_once 'google_calendar_helper.php';
-                $helper = new GoogleCalendarHelper();
+            // Integración Google Calendar: En su propio try para no afectar la respuesta principal
+            if (!empty($id_evento_google)) {
+                try {
+                    include_once 'google_calendar_helper.php';
+                    $helper = new GoogleCalendarHelper();
 
-                // Obtener email del barbero
-                $sql_email = "SELECT email_barbero FROM barberos WHERE nombre = ?";
-                $stmt_e = mysqli_prepare($conexion, $sql_email);
-                mysqli_stmt_bind_param($stmt_e, "s", $row_g['barbero']);
-                mysqli_stmt_execute($stmt_e);
-                $res_email = mysqli_stmt_get_result($stmt_e);
-                $row_email = mysqli_fetch_assoc($res_email);
-
-                $calendarId = ($row_email && !empty($row_email['email_barbero'])) ? $row_email['email_barbero'] : 'primary';
-
-                $result = $helper->eliminarEvento($calendarId, $row_g['id_evento_google']);
+                    // Obtener email del barbero
+                    $sql_email = "SELECT email_barbero FROM barberos WHERE nombre = ?";
+                    $stmt_e = mysqli_prepare($conexion, $sql_email);
+                    mysqli_stmt_bind_param($stmt_e, "s", $barbero_res);
+                    mysqli_stmt_execute($stmt_e);
+                    mysqli_stmt_bind_result($stmt_e, $email_barbero);
+                    
+                    $calendarId = (mysqli_stmt_fetch($stmt_e) && !empty($email_barbero)) ? $email_barbero : 'primary';
+                    mysqli_stmt_close($stmt_e);
+                    
+                    $helper->eliminarEvento($calendarId, $id_evento_google);
+                } catch (Throwable $ge) {
+                    error_log("Error específico de Google Calendar en cancelación: " . $ge->getMessage());
+                }
             }
         } else {
+            mysqli_stmt_close($stmt_g);
             // Si no se encontró la cita con esos criterios de seguridad
             echo json_encode(['success' => false, 'error' => 'No tienes permiso para cancelar esta cita']);
             exit;
         }
-    } catch (Exception $e) {
-        error_log("Error al eliminar: " . $e->getMessage());
+    } catch (Throwable $e) {
+        error_log("Error general al procesar datos previos a cancelación: " . $e->getMessage());
     }
     // ------------------------------------
 

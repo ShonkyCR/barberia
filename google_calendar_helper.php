@@ -82,5 +82,47 @@ class GoogleCalendarHelper
             return false;
         }
     }
+
+    /**
+     * Actualiza un evento existente en el calendario.
+     * 
+     * @param string $calendarId
+     * @param string $eventId
+     * @param string $summary
+     * @param string $description
+     * @param string $fecha
+     * @param string $hora
+     * @param int $durationMinutos
+     * @return bool
+     */
+    public function actualizarEvento($calendarId, $eventId, $summary, $description, $fecha, $hora, $durationMinutos = 30)
+    {
+        if (empty($eventId)) return false;
+
+        $startDateTime = $fecha . 'T' . $hora . ':00';
+        $endDateTime = date('Y-m-d\TH:i:s', strtotime($startDateTime . " + $durationMinutos minutes"));
+
+        try {
+            $event = $this->service->events->get($calendarId, $eventId);
+            $event->setSummary($summary);
+            $event->setDescription($description);
+            
+            $start = new Google_Service_Calendar_EventDateTime();
+            $start->setDateTime($startDateTime);
+            $start->setTimeZone('America/Costa_Rica');
+            $event->setStart($start);
+
+            $end = new Google_Service_Calendar_EventDateTime();
+            $end->setDateTime($endDateTime);
+            $end->setTimeZone('America/Costa_Rica');
+            $event->setEnd($end);
+
+            $this->service->events->update($calendarId, $eventId, $event);
+            return true;
+        } catch (Exception $e) {
+            error_log("Error al actualizar evento Google: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?>

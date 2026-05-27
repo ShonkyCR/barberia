@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 if (isset($_GET['fecha'])) {
     $fecha = $_GET['fecha'];
 
-    $sql = "SELECT c.id_cita, u.nombre AS cliente, c.servicio, c.barbero, c.fecha, 
+    $sql = "SELECT c.id_cita, u.nombre AS cliente, u.telefono, c.servicio, c.barbero, c.fecha, 
             c.hora, c.estado 
             FROM citas_barberia c 
             JOIN usuarios u ON c.id_usuario = u.id_usuario 

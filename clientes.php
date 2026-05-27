@@ -25,7 +25,7 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barberia Jafeth | Clientes</title>
+    <title>Barberia | Clientes</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -45,7 +45,7 @@ $telefono_actual = $datos_usuario['telefono'] ?? '';
             </button>
         </div>
         <img src="img/logo-oficial.png" alt="Barbería Jafeth Logo" class="logo-img">
-        <h1>Barbería Jafeth</h1>
+        <h1>Barbería</h1>
         <p>Bienvenido de nuevo, <?php echo $_SESSION['nombre_usuario']; ?></p>
         <button onclick="abrirModalPerfil()" class="btn-editar-perfil">
             <i class="fas fa-user-edit"></i> Editar Mi Perfil

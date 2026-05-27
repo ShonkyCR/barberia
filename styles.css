@@ -1174,3 +1174,32 @@ input:checked + .slider:before {
 .title-padding {
     padding-left: 20px !important;
 }
+/* --- TOAST WHATSAPP BUTTON --- */
+.btn-whatsapp-toast {
+    background-color: #25d366 !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+    margin-top: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border-radius: 6px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;
+}
+
+.btn-whatsapp-toast:hover {
+    background-color: #128c7e !important;
+    transform: translateY(-2px) scale(1.05) !important;
+    box-shadow: 0 6px 15px rgba(37, 211, 102, 0.5) !important;
+}
+
+/* Ajuste para que el toast no se desvanezca tan rápido si tiene botón */
+.toast.persist {
+    animation: slideIn 0.3s ease-out forwards; /* Sin fadeOut automático */
+}

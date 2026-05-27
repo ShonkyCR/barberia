@@ -17,43 +17,57 @@ if (isset($_POST['id_cita'])) {
 
     // --- INTEGRACIÓN GOOGLE CALENDAR Y DATOS NOTIFICACIÓN ---
     try {
+        // Usamos LEFT JOIN para no fallar si por alguna razón el usuario no aparece
         $sql_g = "SELECT c.id_evento_google, c.barbero, u.nombre as cliente_nombre, u.telefono as cliente_telefono, c.fecha, c.hora 
                   FROM citas_barberia c 
-                  JOIN usuarios u ON c.id_usuario = u.id_usuario
+                  LEFT JOIN usuarios u ON c.id_usuario = u.id_usuario
                   WHERE c.id_cita = ?";
         $stmt_g = mysqli_prepare($conexion, $sql_g);
         mysqli_stmt_bind_param($stmt_g, "i", $id);
         mysqli_stmt_execute($stmt_g);
-        $res_g = mysqli_stmt_get_result($stmt_g);
-        $row_g = mysqli_fetch_assoc($res_g);
-
-        if ($row_g) {
-            // Guardamos datos para la notificación antes de borrar
+        mysqli_stmt_bind_result($stmt_g, $id_evento_google, $barbero_res, $cliente_nombre, $cliente_telefono, $fecha_res, $hora_res);
+        
+        if (mysqli_stmt_fetch($stmt_g)) {
+            // Guardamos datos para la notificación SIEMPRE que se encuentre la cita
             $datos_notificacion = [
-                'cliente' => $row_g['cliente_nombre'],
-                'telefono' => $row_g['cliente_telefono'],
-                'fecha' => $row_g['fecha'],
-                'hora' => $row_g['hora'],
-                'barbero' => $row_g['barbero']
+                'cliente' => $cliente_nombre ?: "Cliente",
+                'telefono' => $cliente_telefono ?: "",
+                'fecha' => $fecha_res,
+                'hora' => $hora_res,
+                'barbero' => $barbero_res
             ];
+            
+            // Log para debug interno (se puede ver en el log de errores de XAMPP)
+            error_log("Cita encontrada para eliminación ID $id. Teléfono: " . ($cliente_telefono ?: 'VACÍO'));
+            
+            mysqli_stmt_close($stmt_g);
 
-            if (!empty($row_g['id_evento_google'])) {
-                include_once 'google_calendar_helper.php';
-                $helper = new GoogleCalendarHelper();
+            // Integración Google Calendar
+            if (!empty($id_evento_google)) {
+                try {
+                    include_once 'google_calendar_helper.php';
+                    $helper = new GoogleCalendarHelper();
 
-                $sql_email = "SELECT email_barbero FROM barberos WHERE nombre = ?";
-                $stmt_e = mysqli_prepare($conexion, $sql_email);
-                mysqli_stmt_bind_param($stmt_e, "s", $row_g['barbero']);
-                mysqli_stmt_execute($stmt_e);
-                $res_email = mysqli_stmt_get_result($stmt_e);
-                $row_email = mysqli_fetch_assoc($res_email);
+                    $sql_email = "SELECT email_barbero FROM barberos WHERE nombre = ?";
+                    $stmt_e = mysqli_prepare($conexion, $sql_email);
+                    mysqli_stmt_bind_param($stmt_e, "s", $barbero_res);
+                    mysqli_stmt_execute($stmt_e);
+                    mysqli_stmt_bind_result($stmt_e, $email_barbero);
+                    
+                    $calendarId = (mysqli_stmt_fetch($stmt_e) && !empty($email_barbero)) ? $email_barbero : 'primary';
+                    mysqli_stmt_close($stmt_e);
 
-                $calendarId = ($row_email && !empty($row_email['email_barbero'])) ? $row_email['email_barbero'] : 'primary';
-                $helper->eliminarEvento($calendarId, $row_g['id_evento_google']);
+                    $helper->eliminarEvento($calendarId, $id_evento_google);
+                } catch (Throwable $ge) {
+                    error_log("Error específico de Google Calendar al eliminar: " . $ge->getMessage());
+                }
             }
+        } else {
+            error_log("No se encontró la cita ID $id en el fetch previo a eliminación.");
+            mysqli_stmt_close($stmt_g);
         }
-    } catch (Exception $e) {
-        error_log("Error al eliminar cita: " . $e->getMessage());
+    } catch (Throwable $e) {
+        error_log("Error general al procesar datos previos a eliminación: " . $e->getMessage());
     }
     // ------------------------------------
 

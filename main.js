@@ -1,23 +1,45 @@
 // ==========================================
 // 1. SISTEMA DE MENSAJES (TOASTS)
 // ==========================================
-function mostrarMensaje(texto, tipo = "success") {
+function mostrarMensaje(texto, tipo = "success", duracion = 3000) {
   const container = document.getElementById("toast-container");
   if (!container) return;
 
   const toast = document.createElement("div");
-  toast.className = `toast ${tipo === "error" ? "error" : ""}`;
+  const isPersistent = (duracion > 5000);
+  toast.className = `toast ${tipo === "error" ? "error" : ""} ${isPersistent ? "persist" : ""}`;
   const icono = tipo === "success" ? "fa-check-circle" : "fa-exclamation-circle";
 
   toast.innerHTML = `
         <i class="fas ${icono}"></i>
-        <span>${texto}</span>
+        <div style="display:flex; flex-direction:column; gap:5px;">
+            <span>${texto}</span>
+        </div>
     `;
 
   container.appendChild(toast);
-  setTimeout(() => {
-    toast.remove();
-  }, 3000);
+  
+  if (!isPersistent) {
+    setTimeout(() => {
+        toast.remove();
+    }, duracion);
+  } else {
+    // Si es persistente, agregamos una X para cerrar manualmente si se desea
+    const closeX = document.createElement("i");
+    closeX.className = "fas fa-times-circle";
+    closeX.style.cursor = "pointer";
+    closeX.style.marginLeft = "10px";
+    closeX.style.opacity = "0.7";
+    closeX.onclick = () => toast.remove();
+    toast.querySelector('div').style.flexDirection = 'row';
+    toast.querySelector('div').style.alignItems = 'center';
+    toast.appendChild(closeX);
+    
+    // De todos modos remover tras 15 segundos
+    setTimeout(() => {
+        if(toast.parentNode) toast.remove();
+    }, 15000);
+  }
 }
 
 // ==========================================
@@ -204,11 +226,11 @@ function cancelarMiCita(idCita, esAgendaTrabajo = false) {
     .then((res) => res.json())
     .then((data) => {
       if (data.success) {
-        mostrarMensaje("¡Cita cancelada!", "success");
-
         // Si el barbero canceló y tenemos datos, ofrecemos notificar por WhatsApp
         if (data.datos_notificacion) {
-          procesarNotificacionWhatsApp(data.datos_notificacion);
+          procesarNotificacionWhatsApp(data.datos_notificacion, "¡Cita cancelada!");
+        } else {
+          mostrarMensaje("¡Cita cancelada!", "success");
         }
 
         cargarCitasCliente();
@@ -296,13 +318,13 @@ function eliminarCita(id) {
     .then((data) => {
       console.log("Respuesta de eliminar_cita:", data);
       if (data.success) { 
-        mostrarMensaje("¡Eliminada!", "success"); 
-        
         // Ofrecer enviar WhatsApp si tenemos los datos
         if (data.datos_notificacion) {
-            procesarNotificacionWhatsApp(data.datos_notificacion);
+            console.log("Datos de notificación recibidos, procediendo a llamar procesarNotificacionWhatsApp");
+            procesarNotificacionWhatsApp(data.datos_notificacion, "¡Cita eliminada!");
         } else {
-            console.log("No se recibieron datos de notificación.");
+            console.warn("No se recibieron datos de notificación en el objeto 'data'.", data);
+            mostrarMensaje("¡Eliminada!", "success"); 
         }
         
         cargarTablaCitas(); 
@@ -319,11 +341,13 @@ function eliminarCita(id) {
 /**
  * Función centralizada para procesar datos de notificación y abrir WhatsApp
  * @param {Object} d - Datos del cliente y cita (cliente, telefono, fecha, hora, barbero)
+ * @param {String} tituloSuccess - Título para el mensaje de éxito (ej: ¡Eliminada!)
  */
-function procesarNotificacionWhatsApp(d) {
+function procesarNotificacionWhatsApp(d, tituloSuccess = "¡Listo!") {
     console.log("Preparando aviso de WhatsApp para:", d);
     if (!d || !d.telefono) {
         console.warn("No hay datos de teléfono para WhatsApp:", d);
+        mostrarMensaje(tituloSuccess + " (Sin teléfono para notificar)", "success");
         return;
     }
 
@@ -335,16 +359,18 @@ function procesarNotificacionWhatsApp(d) {
     if (telLimpio.length === 8) telLimpio = "506" + telLimpio;
 
     const urlWa = `https://wa.me/${telLimpio}?text=${encodeURIComponent(mensajeWa)}`;
+
+    // Botón para incrustar en el toast
+    const btnHtml = `
+        <div style="margin-top:8px;">
+            <button onclick="window.open('${urlWa}', '_blank')" class="btn-whatsapp-toast">
+                <i class="fab fa-whatsapp"></i> NOTIFICAR WHATSAPP
+            </button>
+        </div>
+    `;
     
-    if (confirm("¿Deseas enviar un aviso por WhatsApp al cliente ahora?")) {
-        const a = document.createElement("a");
-        a.href = urlWa;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
+    // Mostramos un único toast con el botón de WhatsApp integrado
+    mostrarMensaje(`${tituloSuccess}${btnHtml}`, "success", 12000);
 }
 
 function editarCita(id, servicio, barbero, fecha, hora) {

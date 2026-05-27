@@ -1,9 +1,9 @@
 <?php
 date_default_timezone_set('America/Costa_Rica');
-$host = "127.0.0.1";
-$user = "root";
-$pass = "123456";
-$db = "barberia_db";
+$host = "sql208.infinityfree.com";
+$user = "if0_41731744";
+$pass = "Shonkydr19"; // Contraseña de InfinityFree
+$db = "if0_41731744_barberia_db";
 
 $conexion = mysqli_connect($host, $user, $pass, $db);
 

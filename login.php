@@ -30,7 +30,7 @@ if ($row = mysqli_fetch_assoc($resultado)) {
         } else {
             header("Location: clientes.php");
         }
-        exit(); // Muy importante para que no se ejecute nada más
+        exit(); 
 
     } else {
         echo "<script>alert('Contraseña incorrecta'); window.location.href='login.html';</script>";
